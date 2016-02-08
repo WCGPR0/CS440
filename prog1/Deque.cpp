@@ -30,10 +30,20 @@
 	return deq->size(&*deq) == 0;	\
 	}							\
    void Deque_##myClassPtr##_push_back(Deque_##myClassPtr *deq, myClassPtr data) { \
-	if (deq->capacity)	{					\
+	if (deq->space++ >= deq->capacity)	{					\
 		deq->capacity *= 2;	\
 		deq->data = (myClassPtr *) realloc(deq->data, deq->capacity * sizeof(myClassPtr)); \
 	} \
+	deq->data[deq->space] = data; \
+}	\
+   void Deque_##myClassPtr##_push_front(Deque_##myClassPtr *deq, myClassPtr data) { \
+	if (deq->space++ >= deq->capacity)	{					\
+		deq->capacity *= 2;	\
+		deq->data = (myClassPtr *) realloc(deq->data, deq->capacity * sizeof(myClassPtr)); \
+	} \
+		for (int i = deq->space; i > 0; --i) \
+			deq->data[i] = deq->data[i - 1];			\
+		deq->data[0] = data;					\
 }	\
 myClassPtr Deque_##myClassPtr##_front(Deque_##myClassPtr *deq) { \
 	return deq->data[0];						\
@@ -50,6 +60,7 @@ myClassPtr Deque_##myClassPtr##_front(Deque_##myClassPtr *deq) { \
 	deq->front = &Deque_##myClassPtr##_front;		\
 	deq->back = &Deque_##myClassPtr##_back;			\
 	deq->push_back = &Deque_##myClassPtr##_push_back;		\
+	deq->push_front = &Deque_##myClassPtr##_push_front;		\
 	}							\
    struct Deque_##myClassPtr##_Iterator {			\
 	myClassPtr *head;						\
@@ -74,15 +85,17 @@ int main() {
    assert(deq.empty(&deq));
    printf("---- %s, %d\n", deq.type_name, int(sizeof(deq.type_name)));
    deq.push_back(&deq, 1);
-   //deq.push_back(&deq, 2);
-   //deq.push_back(&deq, 3);
-   //deq.push_front(&deq, 0);
-   //deq.push_front(&deq, -1);
+   deq.push_back(&deq, 2);
+   deq.push_back(&deq, 3);
+   deq.push_front(&deq, 0);
+   deq.push_front(&deq, -1);
 
-   //printf("%d\n", deq.front(&deq));
-   //printf("%d\n", deq.back(&deq));
-   //assert(deq.front(&deq) == -1);
-  // assert(deq.back(&deq) == 3);
+   printf("%d\n", deq.front(&deq));
+   printf("%d\n", deq.back(&deq));
+   assert(deq.front(&deq) == -1);
+   assert(deq.back(&deq) == 3);
+
+   
 
 }
 

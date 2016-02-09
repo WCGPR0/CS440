@@ -17,8 +17,8 @@
 
 #define Deque_DEFINE(myClassPtr) \
 struct Deque_##myClassPtr##_Iterator;				\
-void Deque_##myClassPtr##_Iterator_increment(Deque_##myClassPtr##_Iterator it);			\
-void Deque_##myClassPtr##_Iterator_decrement(Deque_##myClassPtr##_Iterator it);			\
+void Deque_##myClassPtr##_Iterator_increment(Deque_##myClassPtr##_Iterator *it);			\
+void Deque_##myClassPtr##_Iterator_decrement(Deque_##myClassPtr##_Iterator *it);			\
 struct Deque_##myClassPtr {                                                      \
 	Deque_##myClassPtr##_Iterator (*begin)(Deque_##myClassPtr *);	\
 	Deque_##myClassPtr##_Iterator (*end)(Deque_##myClassPtr *);	\
@@ -34,20 +34,19 @@ struct Deque_##myClassPtr {                                                     
 	void (*pop_front)(Deque_##myClassPtr *);			\
 	void (*dtor)(Deque_##myClassPtr *);					\
 	myClassPtr (*at)(Deque_##myClassPtr *, int);				\
-	void (*clear)(Deque_##myClassPtr *);					\
-	bool (*less)(myClassPtr, myClassPtr);			\
+	void (*clear)(Deque_##myClassPtr *);					\	
     }; 									\
 struct Deque_##myClassPtr##_Iterator {			\
 	myClassPtr *pointer;						\
-	void (*inc) (Deque_##myClassPtr##_Iterator) = &Deque_##myClassPtr##_Iterator_increment;			\
-	void (*dec) (Deque_##myClassPtr##_Iterator) = &Deque_##myClassPtr##_Iterator_decrement;			\
+	void (*inc) (Deque_##myClassPtr##_Iterator *) = &Deque_##myClassPtr##_Iterator_increment;			\
+	void (*dec) (Deque_##myClassPtr##_Iterator *) = &Deque_##myClassPtr##_Iterator_decrement;			\
 	int deref(Deque_##myClassPtr##_Iterator *);								\
    };  \
-void Deque_##myClassPtr##_Iterator_increment(Deque_##myClassPtr##_Iterator it) {	\
-	it.pointer += sizeof(Deque_##myClassPtr);			\
+void Deque_##myClassPtr##_Iterator_increment(Deque_##myClassPtr##_Iterator *it) {	\
+	it->pointer += sizeof(Deque_##myClassPtr);			\
 	}		\
-   void Deque_##myClassPtr##_Iterator_decrement(Deque_##myClassPtr##_Iterator it) {	\
-	it.pointer -= sizeof(Deque_##myClassPtr);			\
+   void Deque_##myClassPtr##_Iterator_decrement(Deque_##myClassPtr##_Iterator *it) {	\
+	it->pointer -= sizeof(Deque_##myClassPtr);			\
 	}		\
     bool Deque_##myClassPtr##_Iterator_equal (Deque_##myClassPtr##_Iterator it1, Deque_##myClassPtr##_Iterator it2) {		\
 	return *(it1.pointer) == *(it2.pointer);			\
@@ -123,11 +122,8 @@ myClassPtr Deque_##myClassPtr##_front(Deque_##myClassPtr *deq) { \
 	deq->begin = &Deque_##myClassPtr##_begin;		\
 	deq->end = &Deque_##myClassPtr##_end;			\
 	deq->at = &Deque_##myClassPtr##_at;			\
-	deq->clear = &Deque_##myClassPtr##_clear; 		\
+	deq->clear = &Deque_##myClassPtr##_clear; 		\	
 	}							\
-   bool Deque_##myClassPtr##_equal(myClassPtr *deq) {			\
-							\
-	} 			
 
 
 bool int_less( int o1, int o2) {
@@ -162,7 +158,8 @@ int main() {
    assert(deq.size(&deq) == 3);
 
    for (Deque_int_Iterator it = deq.begin(&deq);
-         !Deque_int_Iterator_equal(it, deq.end(&deq)); it.inc(&it)) {
+         !Deque_int_Iterator_equal(it, deq.end(&deq)); 
+			it.inc(&it)) {
             //printf("%d\n", it.deref(&it));
         }
  // Test decrement.

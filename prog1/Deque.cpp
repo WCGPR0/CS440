@@ -1,19 +1,24 @@
+/** @author Victor Wu
+    @date 02/08/16
+    CS440 - Advanced Object Oriented Design
+*/
+
+
+#ifndef DEQUE_HPP
+#define DEQUE_HPP
+#define INITIAL_SIZE 10
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Deque.hpp"
 
-#define Deque_DEFINE(myClassPtr)                                                     \
-    struct Deque_##myClassPtr##_Iterator {			\
-	myClassPtr *pointer;						\
-	void (*inc) (Deque_##myClassPtr##_Iterator *);			\
-	int deref(Deque_##myClassPtr##_Iterator *);								\
-   };									\
-    bool Deque_##myClassPtr##_Iterator_equal (Deque_##myClassPtr##_Iterator it1, Deque_##myClassPtr##_Iterator it2) {		\
-	return *(it1.pointer) == *(it2.pointer);			\
-}	\
+#endif 
+
+#define Deque_DEFINE(myClassPtr) \
+struct Deque_##myClassPtr##_Iterator;				\
+void Deque_##myClassPtr##_Iterator_increment(Deque_##myClassPtr##_Iterator *it);			\
+void Deque_##myClassPtr##_Iterator_decrement(Deque_##myClassPtr##_Iterator *it);			\
 struct Deque_##myClassPtr {                                                      \
 	Deque_##myClassPtr##_Iterator (*begin)(Deque_##myClassPtr *);	\
 	Deque_##myClassPtr##_Iterator (*end)(Deque_##myClassPtr *);	\
@@ -23,30 +28,48 @@ struct Deque_##myClassPtr {                                                     
 	char type_name[6 + sizeof(myClassPtr)];					\
 	int (*size)(Deque_##myClassPtr *);					     \
 	bool (*empty)(Deque_##myClassPtr *);					\
-        bool (*func)(myClassPtr *, myClassPtr *);			\
 	void (*push_back)(Deque_##myClassPtr *, myClassPtr);			\
 	void (*push_front)(Deque_##myClassPtr *, myClassPtr);			\
 	void (*pop_back)(Deque_##myClassPtr *);			\
 	void (*pop_front)(Deque_##myClassPtr *);			\
 	void (*dtor)(Deque_##myClassPtr *);					\
+	myClassPtr (*at)(Deque_##myClassPtr *, int);				\
+	void (*clear)(Deque_##myClassPtr *);					\	
     }; 									\
-	Deque_##myClassPtr##_Iterator.inc = &Deque_##myClassPtr##_Iterator_increment; \
-   void Deque_##myClassPtr##_Iterator_increment(Deque_##myClassPtr##_Iterator it) {	\
-	it.pointer += sizeof(Deque_##myClassPtr);			\
+struct Deque_##myClassPtr##_Iterator {			\
+	myClassPtr *pointer;						\
+	void (*inc) (Deque_##myClassPtr##_Iterator *) = &Deque_##myClassPtr##_Iterator_increment;			\
+	void (*dec) (Deque_##myClassPtr##_Iterator *) = &Deque_##myClassPtr##_Iterator_decrement;			\
+	int deref(Deque_##myClassPtr##_Iterator *);								\
+   };  \
+void Deque_##myClassPtr##_Iterator_increment(Deque_##myClassPtr##_Iterator *it) {	\
+	it->pointer += sizeof(Deque_##myClassPtr);			\
+	}		\
+   void Deque_##myClassPtr##_Iterator_decrement(Deque_##myClassPtr##_Iterator *it) {	\
+	it->pointer -= sizeof(Deque_##myClassPtr);			\
+	}		\
+    bool Deque_##myClassPtr##_Iterator_equal (Deque_##myClassPtr##_Iterator it1, Deque_##myClassPtr##_Iterator it2) {		\
+	return *(it1.pointer) == *(it2.pointer);			\
+}	\
+    myClassPtr Deque_##myClassPtr##_at(Deque_##myClassPtr *deq, int i) {	\
+	/*return (myClassPtr) *(deq->data + i * sizeof(myClassPtr));*/ return NULL;	\
+}	\
+    void Deque_##myClassPtr##_clear(Deque_##myClassPtr *deq) {	\
+	/*memset(deq, 0, deq->size(&deq));*/	\
 	}		\
     void Deque_##myClassPtr##_delete(Deque_##myClassPtr *deq) {               \
         free(deq);                                                            \
-    }                                                               \
+    }                                                              \
    Deque_##myClassPtr##_Iterator Deque_##myClassPtr##_begin(Deque_##myClassPtr *deq) { \
  	Deque_##myClassPtr##_Iterator di;			\
 	di.pointer = &deq->data[0];				\
 	return di;						\
-   }		\
-   Deque_##myClassPtr##_Iterator Deque_##myClassPtr##_end(Deque_##myClassPtr *deq) { \
+	}	\
+	Deque_##myClassPtr##_Iterator Deque_##myClassPtr##_end(Deque_##myClassPtr *deq) { \
  	Deque_##myClassPtr##_Iterator di;			\
 	di.pointer = &deq->data[deq->space];			\
 	return di;						\
-   }		\
+   }	\
    int Deque_##myClassPtr##_size(Deque_##myClassPtr *deq) { \
 	return deq->space;					\
    }		\
@@ -98,11 +121,9 @@ myClassPtr Deque_##myClassPtr##_front(Deque_##myClassPtr *deq) { \
 	deq->pop_front = &Deque_##myClassPtr##_pop_front;		\
 	deq->begin = &Deque_##myClassPtr##_begin;		\
 	deq->end = &Deque_##myClassPtr##_end;			\
+	deq->at = &Deque_##myClassPtr##_at;			\
+	deq->clear = &Deque_##myClassPtr##_clear; 		\	
 	}							\
-   bool Deque_##myClassPtr##_equal(myClassPtr *deq) {			\
-	return false;\
-	} 			
-
 
 
 bool int_less( int o1, int o2) {
@@ -137,10 +158,45 @@ int main() {
    assert(deq.size(&deq) == 3);
 
    for (Deque_int_Iterator it = deq.begin(&deq);
-         !Deque_int_Iterator_equal(it, deq.end(&deq)); it.inc(&it)) {
-            printf("%d\n", it.deref(&it));
+         !Deque_int_Iterator_equal(it, deq.end(&deq)); 
+			it.inc(&it)) {
+            //printf("%d\n", it.deref(&it));
         }
-}
+ // Test decrement.
+        {
+            auto it = deq.end(&deq);
+            it.dec(&it);
+            //assert(it.deref(&it) == 2);
+        }
 
+        printf("Using at.\n");
 
+        for (size_t i = 0; i < 3; i++) {
+            printf("%d: %d\n", int(i), deq.at(&deq, i));
+        }
 
+        deq.clear(&deq);
+
+        deq.dtor(&deq);
+   // Test random access performance
+    {
+       size_t sum = 0;
+       int lo = 0, hi = 100000000;
+       Deque_int deq;
+       Deque_int_ctor(&deq, int_less);
+
+       for(int i = lo; i < hi; i++) {
+          deq.push_back(&deq, i);
+       }
+
+       for(int i = lo; i < hi; i++) {
+          sum += deq.at(&deq, i);
+       }
+       if(sum > 0) printf("sum of all integers between %d and %d calculated using a deque is %zu\n", lo, hi, sum);
+       deq.dtor(&deq);
+    }
+
+   // Print allocation info
+  //printf("%zd allocations totalling %zd bytes\n", alloc_call_count, total_bytes_allocated);
+return 0;
+}    

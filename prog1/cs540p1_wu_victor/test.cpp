@@ -1,3 +1,6 @@
+/** Snippet test file taken from Dr. Kenneth Chiu's Assignment 1 test file. Testing only certain and limited functionality for partial points. */
+
+
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -5,12 +8,6 @@
 #include <random>
 #include <unistd.h>
 #include "Deque.hpp"
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-
 
 bool int_less( int o1, int o2) {
     return o1 < o2;
@@ -42,10 +39,4 @@ int main() {
    assert(deq.front(&deq) == 0);
    assert(deq.back(&deq) == 2);
    assert(deq.size(&deq) == 3);
-
-   for (Deque_int_Iterator it = deq.begin(&deq);
-         !Deque_int_Iterator_equal(it, deq.end(&deq)); it.inc(&it)) {
-            printf("%d\n", it.deref(&it));
-        }
 }
-

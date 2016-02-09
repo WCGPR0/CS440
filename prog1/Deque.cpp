@@ -1,11 +1,9 @@
-#ifndef DEQUE_CPP
-#define DEQUE_CPP
-#define INITIAL_SIZE 10
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "Deque.hpp"
 
 #define Deque_DEFINE(myClassPtr)                                                     \
     struct Deque_##myClassPtr##_Iterator {			\
@@ -145,4 +143,4 @@ int main() {
 }
 
 
-#endif 
+

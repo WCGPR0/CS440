@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html><head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <title>CS 540 Programming Assignment 2: Container</title>
+    <style type="text/css">
+      body {
+        font-family: Cambria, serif;
+      }
+      var {
+        white-space: nowrap;
+        font-size: 107%;
+        font-family: Cambria, serif;
+        font-style: italic;
+      }
+      code {
+        white-space: nowrap;
+        font-size: 100%;
+        font-family: "Courier New", Courier, Consolas, monospace;
+      }
+      div.api {
+        border: 3pt;
+        border-color: blue;
+        border-style: solid;
+        padding-top: 20pt;
+        padding-bottom: 20pt;
+        padding-right: 20pt;
+        padding-left: 20pt;
+      }
+      .points {
+        font-family: times;
+        font-style: italic;
+        font-weight: normal;
+      }
+      div.contest {
+        border-width: 3pt;
+        border-style: solid;
+        border-color: red;
+        padding: 10pt;
+        margin-top: 15pt;
+        margin-bottom: 15pt;
+      }
+      p.contest {
+        margin: 0pt;
+        padding: 0pt;
+        font-size: large;
+        color: #ff0000;
+      }
+      h2.contest {
+        font-size: 20pt;
+        margin: 0pt;
+        margin-bottom: 5pt;
+        padding: 0pt;
+        color: #ff0000;
+      }
+      h3.contest {
+        font-size: 14pt;
+        margin: 0pt;
+        margin-bottom: 5pt;
+        padding: 0pt;
+        color: #ff0000;
+      }
+      table {
+        margin-top: 14pt;
+        margin-bottom: 14pt;
+      }
+      td.section {
+        font-family: Calibri, sans-serif;
+        font-size: 110%;
+        font-weight: bold;
+        color: darkgreen;
+        text-align: center;
+      }
+      td.prototype {
+        padding: 4pt;
+        vertical-align: top;
+        /* text-indent: -2em;
+        padding-left: 2em; */
+        /* white-space: pre; */
+        white-space: nowrap;
+        font-family: "Courier New", Courier, Consolas, monospace;
+      }
+      td.prototype p {
+        margin: 10pt 0pt;
+      }
+      td.prototype p:first-of-type {
+        margin-top: 0pt;
+      }
+      td.description p:last-of-type {
+        margin-bottom: 0pt;
+      }
+      td.description {
+        padding: 4pt;
+        vertical-align: top;
+      }
+      td.description p {
+        margin: 10pt 0pt;
+      }
+      td.description p:first-of-type {
+        margin-top: 0pt;
+      }
+      td.description p:last-of-type {
+        margin-bottom: 0pt;
+      }
+      span.header_code {
+        font-size: 110%;
+        font-family: "Courier New", Courier, Consolas, monospace;
+      }
+      span.text {
+        font-family: Cambria, serif;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- I decided to remove move stuff from this assignment. -->
+
+    <h1>CS 540 Programming Assignment 2: Container</h1>
+    <h3>Due March 7th, 11:59 PM.</h3>
+
+    <p>
+      
+      <i>(This document was last modified on Tuesday, February 23, 2016 at 08:20:32 PM.)</i>
+
+    </p><hr>
+
+    <!-- <h2><span class="header_code">Map</span> Class Template</h2> -->
+
+    <p>
+      Implement a container class template named <code>Map</code>
+      similar to the <code>std::map</code> class from the C++ Standard Library.
+
+      Such containers implement key-value pairs,
+      where key and value may be any types,
+      including class types.
+      (In the following,
+      the value will be referred to as the mapped type or mapped object,
+      and the term <i>value</i> will used to designate the entire pair.
+      This is so as to be consistent with the terminology in the standard library.)
+      Note that C++ terminology uses <i>object</i>
+      even for fundamental types such as <code>int</code>s.
+
+      Your <code>Map</code> class template will have two type parameters,
+      <var>Key_T</var> and <var>Mapped_T</var>,
+      denoting the key type and the mapped type, respectively.
+
+      As in <code>std::map</code>,
+      the mapped type values themselves must be in your map,
+      not pointers to the values.
+
+    </p><p>
+
+      The specification given below is intended to be a proper subset of the functionality
+      of <code>std::map</code>.
+
+      This means that if you don't fully understand something,
+      you can check the documentation for <code>std::map</code>,
+      or even write a small test using <code>std::map</code>.
+
+      If you find any discrepancies between what is described below and
+      <code>std::map</code>,
+      please let me know.
+
+    </p><p>
+      You may assume that the <var>Key_T</var> and <var>Mapped_T</var>
+      are copy constructible<!--, move constructible,--> and destructible.
+      You may assume that <var>Key_T</var> has a less-than operator
+      (<code>&lt;</code>),
+      and an equality operator (<code>==</code>),
+      as free-standing functions (not member functions).
+      You may also assume that <var>Mapped_T</var> has an equality comparison (==).
+      If <code>operator&lt;</code> is invoked on <code>Map</code> objects,
+      you may also assume that <var>Mapped_T</var> has <code>operator&lt;</code>.
+      You may <i>not</i> assume that either class has a default constructor
+      or an assignment operator.
+      You may only assume that a <var>Mapped_T</var>
+      that is used with <code>operator[]</code> may be default initialized.
+      You may <i>not</i> make any other assumptions.
+      (Check with us if there is any doubt.)
+
+    </p><p>
+      Your <code>Map</code> class must expose three nested classes: <code>Iterator</code>,
+      <code>ConstIterator</code>, and <code>ReverseIterator</code>.  None of these classes should
+      permit default construction.
+
+    </p><p>
+      An iterator is an object that points to
+      an element in a sequence.  The iterators must traverse the <code>Map</code>
+      by walking through the keys in sorted order.
+      Iterators must remain valid as long as the element they are pointing to has not been erased.
+      Any function that results in the removal of an element from a map,
+      such as <code>erase</code>,
+      will invalidate any iterator that points to that element,
+      but not any other iterator.
+
+    </p><p>
+      Your map implementation must be completely
+      contained in 
+      your <code>Map.hpp</code> file.
+      I do not believe that you will need a <code>Map.cpp</code> file,
+      but you may have one if you wish.
+
+    </p><p>
+      Additionally, your class must meet the following time complexity
+      requirements:  O(lg(<var>N</var>)) for key lookup, insertion, and deletion;
+      and O(1) for all iterator increments and decrements.
+      These time complexities are the worst-case, expected time complexities.
+      In other words, for the worst-case possible input,
+      your submission must, when averaged over many runs, have the given time complexity.
+      If you use amortization to achieve the above bounds,
+      that is fine,
+      but contact me.
+
+    </p><p>
+      To achieve the performance requirements,
+      two data structures that will work are balanced binary trees or skip lists.
+      Note that the former is much easier to implement.
+      Hash tables will <i>not</i> work.
+
+    </p><p>
+      All classes should be in the <code>cs540</code> namespace.
+      Your code must work with test classes that are
+      not in the <code>cs540</code> namespace, however.
+      Your code should not have any memory errors or leaks
+      as reported by <code>valgrind</code>.
+      Your code should compile
+      and run on the <code>remote.cs.binghamton.edu</code> cluster.
+      Your code should not have any hard-coded, arbitrary limits
+      or assumptions about maximum number of elements,
+      maximum sizes, etc.
+
+    <!--
+    <p>
+      There are many variations on how to implement linked lists.
+      In my experience,
+      I have found doubly-linked, circular lists with a sentinel
+      node to be convenient in most cases,
+      and usually the cost of the extra pointer to maintain
+      a doubly-linked list is not an issue.
+      <!~~
+      Some example code is
+      <a href="solution/list/doubly_linked_circular_list.cpp">here</a>.
+      ~~
+
+    <p>
+      Some test code is
+      <a href="solution/list/test.cpp">here</a>.
+    -->
+
+      </p><p>
+        Preliminary test code is here.
+        Read the beginning of the test code to see what, if any, options are provided.
+      </p><ul>
+        <li><a href="http://www.cs.binghamton.edu/%7Ekchiu/cs540/prog/2/tests/test-kec.cpp">Test 1</a>
+        </li><li><a href="http://www.cs.binghamton.edu/%7Ekchiu/cs540/prog/2/tests/test.cpp">Test 2</a>
+        </li><li><a href="http://www.cs.binghamton.edu/%7Ekchiu/cs540/prog/2/tests/minimal.cpp">Minimal</a>
+        </li><li><a href="http://www.cs.binghamton.edu/%7Ekchiu/cs540/prog/2/tests/morseex.cpp">Morse Code Example</a>
+        </li><li><a href="http://www.cs.binghamton.edu/%7Ekchiu/cs540/prog/2/tests/test-scaling.cpp">Performance Test</a> (Compile with <code>-O</code>)
+      </li></ul>
+
+      <!--
+      and your code must work with this without change.
+      We reserve the right to add additional
+      tests to this as we see fit.
+      In particular,
+      we will likely add code to test the ability of
+      your code to support multiple iterators
+      traversing your list at the same time.
+      A sample makefile is
+      <a href="solution/list/Makefile">here</a>.
+      -->
+
+    <h2>Extra Credit</h2>
+
+    For the extra credit,
+    you must also include test code that convinces us that it works.
+    Note that this may require some thought.
+
+    <p>
+      Also,
+      you can only get the extra credit if you meet the other requirements.
+      For example, you cannot get credit for exploiting locality if you cannot
+      successfully erase elements.
+
+    </p><p>
+      The number of points is somewhat variable, depending on exactly what you do,
+      so check with me first with your specific idea to find out how much extra
+      credit.
+
+    </p><h3>Dynamic Maximum Height (5 pts)</h3>
+
+    Skip lists typically have a constant maximum height.
+    Implement a skip list that can adjust the height dynamically.
+
+    <h3>Determinism/Derandomization (up to 30 pts)</h3>
+
+    Skip lists and randomized trees rely on randomization to achieve expected performance.
+    This means that they may be inappropriate for hard real-time use cases.
+    Do something to address this issue.
+    You can only get this if you are using a randomized algorithm such as skip lists.
+
+    <h3>Indexable (10 pts)</h3>
+
+    Make your <code>Map</code> indexable.
+    Performance must be better than O(<var>N</var>).
+
+    <h3>Exploit Locality (up to 10 pts)</h3>
+
+    Make your <code>Map</code> faster for lookups that are near each other.
+
+    <h2>API</h2>
+
+    <h3>Template</h3>
+
+    <table frame="border" rules="all">
+      <thead>
+        <tr>
+          <th>Declaration
+          </th><th>Description
+      </th></tr></thead>
+      <tbody>
+
+        <tr>
+          <td class="prototype">template &lt;typename <var>Key_T</var>, typename <var>Mapped_T</var>&gt; class Map;
+          </td><td class="description">
+            This declares a <code>Map</code> class that maps from <var>Key_T</var> objects to <var>Mapped_T</var> objects.
+
+      </td></tr></tbody>
+    </table>
+
+    <h3>Type Member</h3>
+
+    <table frame="border" rules="all">
+      <thead>
+        <tr>
+          <th>Member
+          </th><th>Description
+      </th></tr></thead>
+      <tbody>
+
+        <tr>
+          <td class="prototype">ValueType
+          </td><td class="description">The type of the elements: <code>std::pair&lt;const <var>Key_T</var>, <var>Mapped_T</var>&gt;</code>.
+
+      </td></tr></tbody>
+    </table>
+
+    <h3>Public Member Functions and Comparison Operators of <span class="header_code">Map</span></h3>
+
+    <table frame="border" rules="all">
+      <thead>
+        <tr>
+          <th>Prototype
+          </th><th>Description
+      </th></tr></thead>
+      <tbody>
+
+        <!-- Constructors and Assignment Operator -->
+        <tr><td class="section" colspan="2">Constructors and Assignment Operator
+
+        </td></tr><tr>
+          <td class="prototype">Map();
+          </td><td class="description">This constructor creates an empty map.
+
+        </td></tr><tr>
+          <td class="prototype">Map(const Map &amp;);
+          </td><td class="description">Copy constructor.
+
+        <!--
+        <tr>
+          <td class="prototype">Map(Map &amp;&amp;);
+          <td class="description">Move constructor. Must not duplicate any existing entries.
+        -->
+
+        </td></tr><tr>
+          <td class="prototype">Map &amp;operator=(const Map &amp;);
+          </td><td class="description">Copy assignment operator.
+            <a href="https://isocpp.org/wiki/faq/value-vs-ref-semantics">Value semantics</a>
+            must be used.
+            You must be able to handle self-assignment.
+
+        <!--
+        <tr>
+          <td class="prototype">Map&amp; operator=( Map&amp;&amp;);
+          <td class="description">Move assignment. Must not duplicate any existing entries.
+        -->
+
+        </td></tr><tr>
+          <td class="prototype">Map(std::initializer_list&lt;std::pair&lt;const <var>Key_T</var>, <var>Mapped_T</var>&gt;&gt;);
+          </td><td class="description">Initializer list constructor. Support for creation of
+            <code>Map</code> with initial values, such as
+            <code>Map&lt;string,int&gt; m{{"key1", 1}, {"key2", 2}};</code>.
+
+        </td></tr><tr>
+          <td class="prototype">~Map();
+          </td><td class="description">Destructor, release any acquired resources.
+
+        <!-- Size -->
+        </td></tr><tr><td class="section" colspan="2">Size
+
+        </td></tr><tr>
+          <td class="prototype">size_t size() const;
+          </td><td class="description">Returns the number of elements in the map.
+
+        </td></tr><tr>
+          <td class="prototype">bool empty() const;
+          </td><td class="description">Returns <code>true</code> if the Map has no entries in it, <code>false</code> otherwise.
+
+        <!-- Iterators -->
+        </td></tr><tr><td class="section" colspan="2">Iterators
+
+        </td></tr><tr>
+          <td class="prototype">Iterator begin();
+          </td><td class="description">Returns an <code>Iterator</code> pointing to the first element, in order.
+
+        </td></tr><tr>
+          <td class="prototype">Iterator end();
+          </td><td class="description">Returns an <code>Iterator</code> pointing one past the last element, in order.
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator begin() const;
+          </td><td class="description">Returns a <code>ConstIterator</code> pointing to the first element, in order.
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator end() const;
+          </td><td class="description">Returns a <code>ConstIterator</code> pointing one past the last element, in order.
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator rbegin()
+          </td><td class="description">Returns an <code>ReverseIterator</code> to the first element in reverse order,
+            which is the last element in normal order.
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator rend()
+          </td><td class="description">Returns an <code>ReverseIterator</code> pointing to one past the last element in
+            reverse order, which is one before the first element in normal order.
+
+        <!-- Element Access -->
+        </td></tr><tr><td class="section" colspan="2">Element Access
+
+        </td></tr><tr>
+          <td class="prototype">Iterator find(const <var>Key_T</var> &amp;);<br>
+            ConstIterator find(const <var>Key_T</var> &amp;) const;
+          </td><td class="description">Returns an iterator to the given key.
+            If the key is not found,
+            these functions return the <code>end()</code> iterator.
+
+        </td></tr><tr>
+          <td class="prototype"><var>Mapped_T</var> &amp;at(const <var>Key_T</var> &amp;);
+          </td><td class="description">Returns a reference to the mapped object at the specified key.
+            If the key is not in the Map, throws <code>std::out_of_range</code>.
+        </td></tr><tr>
+          <td class="prototype">const <var>Mapped_T</var> &amp;at(const <var>Key_T</var> &amp;) const;
+          </td><td class="description">Returns a const reference to the mapped object at the specified key.
+            If the key is not in the map, throws <code>std::out_of_range</code>.
+        </td></tr><tr>
+          <td class="prototype"><var>Mapped_T</var> &amp;operator[](const <var>Key_T</var> &amp;);
+          </td><td class="description">If key is in the map, return a reference to the corresponding mapped object.
+          If it is not, <a href="http://en.cppreference.com/w/cpp/language/value_initialization">value initialize</a> a mapped object for that key and returns a reference to it.
+          This operator may not be used for a <var>Mapped_T</var> class type that does not support default construction.
+
+        <!--
+        <tr>
+          <td class="prototype"><var>T</var> &amp;front()<br>
+            const <var>T</var> &amp;front() const
+          <td class="description">Returns a reference to the first element in the list.
+          The consequences of this function are undefined if the
+          list is empty.
+
+        <tr>
+          <td class="prototype"><var>T</var> &amp;back()<br>
+            const <var>T</var> &amp;back() const
+          <td class="description">Returns a reference to the last element in the list.
+          The consequences of this function are undefined if the
+          list is empty.
+        -->
+
+        <!-- Modifiers -->
+        </td></tr><tr><td class="section" colspan="2">Modifiers
+
+        <!--
+        <tr>
+          <td class="prototype">void push_front(const <var>T</var> &amp;)
+          <td class="description">Inserts a new element at the front of the list.
+            This operation must result in only one <var>T</var>
+            constructor invocation.
+
+        <tr>
+          <td class="prototype">void push_back(const <var>T</var> &amp;)
+          <td class="description">Inserts a new element at the end of the list.
+            This operation must result in only one <var>T</var>
+            constructor invocation.
+
+        <tr>
+          <td class="prototype">void pop_front()
+          <td class="description">Removes the first element.
+          If the list is empty, the behavior is undefined.
+
+        <tr>
+          <td class="prototype">void pop_back()
+          <td class="description">Removes the last element.
+          If the list is empty, the behavior is undefined.
+        -->
+
+        </td></tr><tr>
+          <td class="prototype">
+            <p>
+              std::pair&lt;Iterator, bool&gt; insert(const ValueType &amp;);
+            </p><p>
+              template &lt;typename <var>IT_T</var>&gt;<br>
+              void insert(<var>IT_T</var> <var>range_beg</var>, <var>IT_T</var> <var>range_end</var>);
+          </p></td><td class="description">
+            <p>
+              The first version inserts the given pair into the map.
+              If the key does not already exist in the map,
+              it returns an iterator pointing to the new element,
+              and <code>true</code>.
+              If the key already exists,
+              no insertion is performed nor is the mapped object changed,
+              and it returns an iterator pointing to the element with the same key,
+              and <code>false</code>.
+            </p><p>
+              The second version
+              inserts the given object or range of objects into the map.
+              In the second version,
+              the range of objects inserted includes the object
+              <var>range_beg</var> points to,
+              but not the object that <var>range_end</var> points to.
+              In other words,
+              the range is <em>half-open</em>.
+              The iterator returned in the first version
+              points to the newly inserted element.
+              There must be only one constructor invocation per object inserted.
+              Note that the range may be in a different container type,
+              as long as the iterator is compatible.
+              A compatible iterator would be one from which a <code>ValueType</code> can be constructed.
+              For example,
+              it might be from a <code>std::vector&lt;std::pair&lt;<var>Key_T</var>, <var>Mapped_T</var>&gt;&gt;</code>.
+              There might be any number of compatible iterator types,
+              therefore, the range insert is a member template.
+
+        </p></td></tr><tr>
+          <!-- Removed move stuff, to keep this assignment shorter.
+          <!~~  FIX THIS!!! The return is wrong. ~~>
+          <td class="prototype">Iterator insert(std::pair&lt;const Key_T, <var>Mapped_T</var>&gt;&amp;&amp;);
+          <td class="description">Inserts by moving, rather than copying, the provided key-mapped pair.
+          -->
+
+        </tr><tr>
+          <td class="prototype">
+            void erase(Iterator <var>pos</var>);<br>
+            void erase(const <var>Key_T</var> &amp;);
+          </td><td class="description">
+            Removes the given object from the map.
+            The object may be indicated by iterator,
+            or by key.
+            If given by key,
+            throws <code>std::out_of_range</code> if the key is not in the
+            <code>Map</code>
+
+        </td></tr><tr>
+          <td class="prototype">void clear();
+          </td><td class="description">
+            Removes all elements from the map.
+
+        <!--
+        <tr>
+          <td class="prototype">
+            void splice(Iterator <var>dest_pos</var>, Map &amp;<var>src</var>, Iterator <var>src_pos</var>)<br>
+            <!~~
+            void splice(Iterator <var>dest_pos</var>, Map &amp;<var>src</var>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Iterator <var>range_beg</var>, Iterator <var>range_end</var>)
+            ~~>
+            void splice(Iterator <var>dest_pos</var>, Map &amp;<var>src</var>, Iterator <var>range_beg</var>, Iterator <var>range_end</var>)
+          <td class="description">
+            These functions move elements from <var>src</var> to <em>this</em>
+            <code>Map</code> object,
+            inserting them before <var>dest_pos</var>.
+            Elements are removed from the <var>src</var> list.
+            The first version just moves one element.
+            In the second version,
+            the range of objects moved includes the object
+            <var>range_beg</var> points to, but not the object
+            that <var>range_end</var> points to.
+            In other words,
+            the range is <em>half-open</em>.
+            You may assume that <code>&amp;</code><var>src</var><code> != this</code>.
+            There must be no <var>T</var> constructor calls invoked as the result
+            of calling this member function.
+          -->
+
+
+        <!--
+        <tr>
+          <td class="prototype">
+            void unique()
+          <td class="description">
+            This function removes all contiguous,
+            duplicate elements.
+            In other words,
+            any sequence of two or more elements that compare equal
+            will be reduced to a single element.
+        -->
+
+        <!-- Comparison -->
+        </td></tr><tr><td class="section" colspan="2">Comparison
+
+        </td></tr><tr>
+          <td class="prototype">
+            bool operator==(const Map &amp;, const Map &amp;);<br>
+            bool operator!=(const Map &amp;, const Map &amp;);<br>
+            bool operator&lt;(const Map &amp;, const Map &amp;);
+          </td><td class="description">
+            <p>
+              These operators may be implemented as member functions
+              or free functions,
+              though implementing as free functions is recommended.
+              The first operator compares the given maps for equality.
+              Two maps compare equal if they have the same number of elements,
+              and if all elements compare equal.
+              The second operator compares the given maps for inequality.
+              You may implement this simply as the logical complement of
+              the equality operator.
+              For the third operator,
+              you must use lexicographic sorting.
+              Corresponding elements from each maps must be compared
+              one-by-one.
+              A map <var>M</var><sub>1</sub> is less than a map <var>M</var><sub>2</sub> if there is an
+              element in <var>M</var><sub>1</sub> that is less than the corresponding
+              element in the same position in maps <var>M</var><sub>2</sub>,
+              or if all corresponding elements in both maps
+              are equal and <var>M</var><sub>1</sub> is shorter than <var>M</var><sub>2</sub>.
+            </p><p>
+              Map elements are of type <code>ValueType</code>,
+              so this actually compares the pairs.
+
+      </p></td></tr></tbody>
+    </table>
+
+    <h3>Public Member Functions of <span class="header_code">Iterator</span></h3>
+
+    <table frame="border" rules="all">
+      <thead>
+        <tr>
+          <th>Prototype
+          </th><th>Description
+      </th></tr></thead>
+      <tbody>
+
+        <tr><td class="section" colspan="2">Map&lt;<var>Key_T</var>, <var>Mapped_T</var>&gt;::Iterator
+
+        </td></tr><tr>
+          <td class="prototype">Iterator(const Iterator &amp;);
+          </td><td class="description">
+            Your class must have a copy constructor,
+            but you do not need to define this if the implicit
+            one works for your implementation.
+            (Which is what I expect in most cases.)
+
+        </td></tr><tr>
+          <td class="prototype">~Iterator();
+          </td><td class="description">Destructor (implicit definition is likely good enough).
+
+        </td></tr><tr>
+          <td class="prototype">Iterator&amp; operator=(const Iterator &amp;);
+          </td><td class="description">
+            Your class must have an assignment operator,
+            but you do not need to define this if the implicit
+            one works for your implementation.
+            (Which is what I expect in most cases.)
+
+        </td></tr><tr>
+          <td class="prototype">Iterator &amp;operator++();
+          </td><td class="description">Increments the iterator one element,
+          and returns a reference to the incremented iterator (preincrement).
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+        </td></tr><tr>
+          <td class="prototype">Iterator operator++(int);
+          </td><td class="description">Increments the iterator one element,
+          and returns an iterator pointing to the element
+          prior to incrementing the iterator (postincrement).
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+        </td></tr><tr>
+          <td class="prototype">Iterator &amp;operator--();
+          </td><td class="description">Decrements the iterator one element,
+          and returns a reference to the decremented iterator (predecrement).
+          If the iterator is pointing to the beginning of the list,
+          the behavior is undefined.
+          If the iterator has the special value
+          returned by the <code>end()</code> function,
+          then the iterator must point to the last
+          element after this function.
+
+        </td></tr><tr>
+          <td class="prototype">Iterator operator--(int);
+          </td><td class="description">Decrements the iterator one element,
+          and returns an iterator pointing to the element
+          prior to decrementing (postdecrement).
+          If the iterator is pointing to the beginning of the list,
+          the behavior is undefined.
+          If the iterator has the special value
+          returned by the <code>end()</code> function,
+          then the iterator must point to the last
+          element after this function.
+
+        </td></tr><tr>
+          <td class="prototype">ValueType &amp;operator*() const;
+          </td><td class="description">Returns a reference to the <code>ValueType</code> object
+          contained in this element of the list.
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+          This can be used to change the <var>Mapped_T</var> member of the element.
+
+        </td></tr><tr>
+          <td class="prototype">ValueType *operator-&gt;() const;
+          </td><td class="description">Special member access operator for the element.
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+          This can be used to change the <var>Mapped_T</var> member of the element.
+
+      </td></tr></tbody>
+    </table>
+
+    <h3>Public Member Functions of <span class="header_code">ConstIterator</span></h3>
+
+    <p>
+      This class has all the same functions and operators as
+      the <code>Iterator</code> class,
+      except that the dereference operator (<code>*</code>)
+      and the class member access operator (<code>-&gt;</code>),
+      better known as the arrow operator,
+      return const references.
+
+    </p><p>
+      You should try to move as many of the operations below
+      as possible into a base class that is common to the other iterator
+      types.
+
+    </p><table frame="border" rules="all">
+      <thead>
+        <tr>
+          <th>Prototype
+          </th><th>Description
+      </th></tr></thead>
+      <tbody>
+
+        <tr><td class="section" colspan="2">Map&lt;<var>Key_T</var>, <var>Mapped_T</var>&gt;::ConstIterator
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator(const ConstIterator &amp;);
+          </td><td class="description">
+            Your class must have a copy constructor,
+            but you do not need to define this if the implicit
+            one works for your implementation.
+            (Which is what I expect in most cases.)
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator(const Iterator &amp;);
+          </td><td class="description">
+            This is a conversion operator.
+
+        </td></tr><tr>
+          <td class="prototype">~ConstIterator();
+          </td><td class="description">Destructor (implicit definition is likely good enough).
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator&amp; operator=(const ConstIterator &amp;);
+          </td><td class="description">
+            Your class must have an assignment operator,
+            but you do not need to define this if the implicit
+            one works for your implementation.
+            (Which is what I expect in most cases.)
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator &amp;operator++();
+          </td><td class="description">Increments the iterator one element,
+          and returns a reference to the incremented iterator (preincrement).
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator operator++(int);
+          </td><td class="description">Increments the iterator one element,
+          and returns an iterator pointing to the element
+          prior to incrementing the iterator (postincrement).
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator &amp;operator--();
+          </td><td class="description">Decrements the iterator one element,
+          and returns a reference to the decremented iterator (predecrement).
+          If the iterator is pointing to the beginning of the list,
+          the behavior is undefined.
+          if the iterator has the special value
+          returned by the <code>end()</code> function,
+          then the iterator must point to the last
+          element after this function.
+
+        </td></tr><tr>
+          <td class="prototype">ConstIterator operator--(int);
+          </td><td class="description">Decrements the iterator one element,
+          and returns an iterator pointing to the element
+          prior to decrementing (postdecrement).
+          If the iterator is pointing to the beginning of the list,
+          the behavior is undefined.
+          if the iterator has the special value
+          returned by the <code>end()</code> function,
+          then the iterator must point to the last
+          element after this function.
+
+        </td></tr><tr>
+          <td class="prototype">const ValueType &amp;operator*() const;
+          </td><td class="description">Returns a reference to the current element of the iterator.
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+        </td></tr><tr>
+          <td class="prototype">const ValueType *operator-&gt;() const;
+          </td><td class="description">Special member access operator for the element.
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+      </td></tr></tbody>
+    </table>
+
+    <h3>Public Member Functions of <span class="header_code">ReverseIterator</span></h3>
+
+    <p>
+      This class has all the same functions and operators as
+      the <code>Iterator</code> class,
+      except that the direction of increment and decrement
+      are reversed.
+      In other words,
+      incrementing this iterator actually
+      goes backwards through the map.
+
+    </p><p>
+      You should try to move as many of the operations below
+      as possible into a base class that is common to the other iterator
+      types.
+
+    </p><p>
+      Note that a real container would probably also
+      have a const reverse iterator,
+      which would result in even more duplication.
+
+    </p><table frame="border" rules="all">
+      <thead>
+        <tr>
+          <th>Prototype
+          </th><th>Description
+      </th></tr></thead>
+      <tbody>
+
+        <tr><td class="section" colspan="2">Map&lt;<var>Key_T</var>, <var>Mapped_T</var>&gt;::ReverseIterator
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator(const ReverseIterator &amp;);
+          </td><td class="description">
+            Your class must have a copy constructor,
+            but you do not need to define this if the implicit
+            one works for your implementation.
+            (Which is what I expect in most cases.)
+
+        </td></tr><tr>
+          <td class="prototype">~ReverseIterator();
+          </td><td class="description">Destructor (implicit definition is likely good enough).
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator&amp; operator=(const ReverseIterator &amp;);
+          </td><td class="description">
+            Your class must have an assignment operator,
+            but you do not need to define this if the implicit
+            one works for your implementation.
+            (Which is what I expect in most cases.)
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator &amp;operator++();
+          </td><td class="description">Increments the iterator one element,
+          and returns a reference to the incremented iterator (preincrement).
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator operator++(int);
+          </td><td class="description">Increments the iterator one element,
+          and returns an iterator pointing to the element
+          prior to incrementing the iterator (postincrement).
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator &amp;operator--()
+          </td><td class="description">Decrements the iterator one element,
+          and returns a reference to the decremented iterator (predecrement).
+          If the iterator is pointing to the beginning of the list,
+          the behavior is undefined.
+          If the iterator has the special value
+          returned by the <code>end()</code> function,
+          then the iterator must point to the last
+          element after this function.
+
+        </td></tr><tr>
+          <td class="prototype">ReverseIterator operator--(int)
+          </td><td class="description">Decrements the iterator one element,
+          and returns an iterator pointing to the element
+          prior to decrementing (postdecrement).
+          If the iterator is pointing to the beginning of the list,
+          the behavior is undefined.
+          If the iterator has the special value
+          returned by the <code>end()</code> function,
+          then the iterator must point to the last
+          element after this function.
+
+        </td></tr><tr>
+          <td class="prototype">ValueType &amp;operator*() const;
+          </td><td class="description">Returns a reference to the <code>ValueType</code> object
+          contained in this element of the list.
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+          This can be used to change the <var>Mapped_T</var> member of the element.
+
+        </td></tr><tr>
+          <td class="prototype">ValueType *operator-&gt;() const;
+          </td><td class="description">Special member access operator for the element.
+          If the iterator is pointing to the end of the list,
+          the behavior is undefined.
+          This can be used to change the <var>Mapped_T</var> member of the element.
+
+      </td></tr></tbody>
+    </table>
+
+    <h3>Comparison Operators for Iterators</h3>
+
+    <p>
+      These operators implemented as member functions or free
+      functions.
+      I suggest that you use free functions,
+      however.
+
+    </p><table frame="border" rules="all">
+      <thead>
+        <tr>
+          <th>Member
+          </th><th>Description
+      </th></tr></thead>
+      <tbody>
+
+        <tr>
+          <td class="prototype">
+            bool operator==(const Iterator &amp;, const Iterator &amp;)<br>
+            bool operator==(const ConstIterator &amp;, const ConstIterator &amp;)<br>
+            bool operator==(const Iterator &amp;, const ConstIterator &amp;)<br>
+            bool operator==(const ConstIterator &amp;, const Iterator &amp;)<br>
+            bool operator!=(const Iterator &amp;, const Iterator &amp;)<br>
+            bool operator!=(const ConstIterator &amp;, const ConstIterator &amp;)<br>
+            bool operator!=const Iterator &amp;, const ConstIterator &amp;)<br>
+            bool operator!=const ConstIterator &amp;, const Iterator &amp;)<br>
+          </td><td class="description">
+            You must be able to compare any combination of <code>Iterator</code> and <code>ConstIterator</code>.
+            Two iterators compare equal if they point to the same element
+            in the list.
+            Two iterators may compare unequal even if the
+            <var>T</var> objects that they contain compare equal.
+            It's not strictly necessary that you implement the above exactly as written,
+            only that you must be able to compare the above.
+            For example, if your <code>Iterator</code> inherits from <code>ConstIterator</code>,
+            then you may be able to get some
+            of the above comparisons autumatically via implicit upcasts.
+
+        </td></tr><tr>
+          <td class="prototype">
+            bool operator==(const ReverseIterator &amp;, const ReverseIterator &amp;)<br>
+            bool operator!=(const ReverseIterator &amp;, const ReverseIterator &amp;)<br>
+          </td><td class="description">
+            It's not strictly necessary that you implement the above exactly as written,
+            only that you must be able to compare the above.
+            For example, if your <code>ReverseIterator</code> inherits from <code>Iterator</code>,
+            then you may be able to get some
+            of the above comparisons autumatically via implicit upcasts.
+      </td></tr></tbody>
+    </table>
+
+<!-- =============================================================================== -->
+
+    <!--
+    <h2>Part 2: Arbitrary Dimension Array Class Template (15 Points)</h2>
+
+    <p>
+      This part requires some thought,
+      though the number of lines is not long.
+      I've given it a reduced weight,
+      so don't worry too much if you can't get it completely right.
+
+    <p>
+      For this part,
+      you will implement 
+      a array class template named <code>cs540::Array</code> that can be instantiated with any number of dimensions.
+      The <em>number</em> of dimensions is given as a template argument at compile-time,
+      but the <em>size</em> of each dimension is given in the constructor at run-time.
+
+    <p>
+      Here is an example of how it might be used.
+      The full API is further below.
+
+    <blockquote><pre>
+// Define a 2X3X4 array of integers.  Elements are uninitialized.
+size_t dims[3] = {2, 3, 4};
+Array&lt;3, int&gt; a(dims);
+
+// Range-checked indexing.
+a[0][0][0] = 1234;
+a[1][1][1] = a[0][0][0];
+a[0][2][3] = 5678; // Set the element in the first plane, 3rd row, and 4th column.
+a[0][3][0] = 1; // Out of range, throws.
+
+a = a; // Self-assignment must be a no-op.
+
+const Array&lt;3, int&gt; &amp;const_ref(a);
+
+int i = const_ref[0][0][0]; // Okay.
+
+const_ref[0][0][0] = 1; // Syntax error.
+<!~~
+// Iterate through in plane major order.
+for (Array&lt;3, int&gt;::FirstDimensionMajorIterator it = a.fmbegin(); it != a.fmend(); ++it) {
+    cout &lt;&lt; *it &lt;&lt; endl;
+}
+
+// Iterate through in column major order.
+for (Array&lt;3, int&gt;::LastDimensionMajorIterator it = a.lmbegin(); it != a.lmend(); ++it) {
+    cout &lt;&lt; *it &lt;&lt; endl;
+}~~></pre>
+    </blockquote>
+
+    <p>
+      You should throw an object of class type <code>cs540::OutOfRange</code> as an
+      exception if there is indexing operation that is out of range.
+      You should provide the definition of this class in your header file.
+
+    <p>
+      Your code must not have any fixed limits.
+      You must be able to construct arrays with any number of elements,
+      etc.
+
+    <p>
+      Your array implementation must be completely
+      contained in 
+      <code>Array.hpp</code> and <code>Array.cpp</code>.
+      Note that <code>Array.cpp</code> will likely be empty.
+      <!~~
+      Skeletal test code for your array is
+      <a href="support/part2/test.cpp">here</a>,
+      and your code must work with this without change.
+      We reserve the right to add addtional
+      tests to this as we see fit,
+      but we will conform to the API used in the
+      provided test code.
+      A sample makefile is
+      <a href="support/part1/Makefile">here</a>.
+      ~~>
+
+    <h3>Template</h3>
+
+    <table frame=border rules=all>
+      <thead>
+        <tr>
+          <th>Declaration
+          <th>Description
+      </thead>
+      <tbody>
+
+        <tr>
+          <td class="prototype">template &lt;int <var>D</var>, typename <var>T</var>&gt; class Array;</td>
+          <td class="description">
+            This declares a
+            <var>D</var>-dimension array containing elements of type <var>T</var>.
+            If <var>D</var> is not positive,
+            the behavior is undefined.
+
+      </tbody>
+    </table>
+
+    <h3>Type Member</h3>
+
+    <table frame=border rules=all>
+      <thead>
+        <tr>
+          <th>Member
+          <th>Description
+      </thead>
+      <tbody>
+
+        <tr>
+          <td class="prototype">ValueType</td>
+          <td class="description">The type of the elements: <var>T</var>.
+
+        <!~~
+        <tr>
+          <td class="prototype">FirstDimensionMajorIterator</td>
+          <td class="description">The type of the named iterator.
+
+        <tr>
+          <td class="prototype">LastDimensionMajorIterator</td>
+          <td class="description">The type of the named iterator.
+
+        <tr>
+          <td class="prototype">ConstFirstDimensionMajorIterator</td>
+          <td class="description">The type of the named iterator.
+
+        <tr>
+          <td class="prototype">ConstLastDimensionMajorIterator</td>
+          <td class="description">The type of the named iterator.
+        ~~>
+
+      </tbody>
+    </table>
+
+    <h3>Public Member Functions</h3>
+
+    <table frame=border rules=all>
+      <thead>
+        <tr>
+          <th>Prototype
+          <th>Description
+      </thead>
+      <tbody>
+
+        <tr>
+          <td class="prototype">Array(size_t (&amp;)[<var>D</var>]);</td>
+          <td class="description">This constructor creates an array of the given size for each dimension.
+            The elements are not initialized.
+
+        <tr>
+          <td class="prototype">Array(const Array &amp;);</td>
+          <td class="description">The copy constructor must work.
+            The dimensionality of the source array must be the same.
+            Note that a non-template copy constructor must be
+            provided, in addtion to the member template copy constructor.
+
+        <tr>
+          <td class="prototype">template &lt;typename <var>U</var>&gt;
+Array(const Array&lt;<var>D</var>, <var>U</var>&gt; &amp;);</td>
+          <td class="description">The copy constructor must work.
+            The dimensionality of the source array must be the same.
+
+        <tr>
+          <td class="prototype">Array &amp;operator=(const Array &amp;);</td>
+          <td class="description">The assignment operator must work.
+            The dimensionality of the source array must be the same.
+            Self-assignment must be a no-op.
+            Note that this non-template assignment operator must be
+            provided, in addtion to the member template assignment operator.
+
+        <tr>
+          <td class="prototype">template &lt;typename <var>U</var>&gt;
+Array &amp;operator=(const Array&lt;<var>U</var>&gt; &amp;);</td>
+          <td class="description">The assignment operator must work.
+            The dimensionality of the source array must be the same.
+            Self-assignment must be a no-op.
+
+        <tr>
+          <td class="prototype"><var>T</var> &amp;operator[size_t <var>i_1</var>][size_t <var>i_2</var>]...[size_t <var>i_D</var>];
+const <var>T</var> &amp;operator[size_t <var>i_1</var>][size_t <var>i_2</var>]...[size_t <var>i_D</var>] const;</td>
+          <td class="description">
+            This is used to index into the array with range-checking.
+            If any given indices are out-of-range,
+            then an <code>OutOfRange</code> exception must be thrown.
+            Note that this is a &ldquo;conceptual&rdquo; operator only.
+            Such an operator does not really exist.
+            Instead,
+            you must figure out how to provide this functionality.
+            (Hint: Use helper classes.)
+
+-->
+
+
+    <h3>Submission and Evaluation</h3>
+
+    <p>
+      Your code should compile with no warnings.
+      Your code must not have any fixed limits,
+      except if you are using skip lists,
+      you may bound the number of levels to 32.
+      You must be able to put any number elements into your map, etc.
+      Your program must not have any memory errors,
+      such as using data before it is initialized,
+      writing to beyond a valid memory region,
+      etc.
+      Your program must also not have any memory leaks.
+      Your program must not output any debugging messages.
+      Use the <code>valgrind</code> command to test
+      your submission.
+
+    </p><p>
+      Your code must work with the unaltered
+      test code.
+      (You are of course allowed to modify
+      it on your own, as long as your submission still
+      works with the unaltered version.)
+      You must stress test your code,
+      see the comment at the beginning of <code>test-kec.cpp</code>
+      for the options.
+
+    </p><p>
+      The test code is provided as a means for you to check whether or not your
+      program is as expected.
+      It is NOT intended to be used to develop and debug your program.
+      You may find it hard to understand, etc.
+      Also, we may update the test code
+      periodically.
+
+    </p><p>
+      If you are doing any extra credit,
+      you must provide test code to show that it works,
+      if applicable.
+
+    </p><p>
+      You may of course develop your program on any
+      machine,
+      but it will be tested on the Linux classroom machines,
+      and your grade will be determined by how it works
+      on those.
+
+    </p><p>
+      Your code should be in one file,
+      <code>Map.hpp</code>.
+      Your header files must have
+      <a href="http://en.wikipedia.org/wiki/Include_guard">include guards</a>.
+      Your submission must also include a <code>README.txt</code>
+      file which contains your full name, your Bmail address,
+      and your B-number, each on one line, in sequence.
+      It can optionally contain any
+      comments you feel are relevant to the project like what works,
+      what does not work,
+      what you feel is interesting,
+      logs of test cases, etc.
+
+    </p><p>
+      Your grade will be based on correctness.
+      Correctness will include whether or not your output is correct,
+      and whether or not you can scale, or have any memory
+      (or other resource) leaks.
+      Correctness will also depend on whether or not you
+      have followed instructions.
+      <span class="red">
+      If your code does not work correctly with
+      the provided test code,
+      you must provide your own test code,
+      which we will use to assign partial credit,
+      along with an explanation in your <code>README.txt</code> as to what works.
+      To receive credit for a functionality,
+      your test code must test it.
+      In other words,
+      if you don't work with our code,
+      and your supplied test code only tests <code>insert()</code>,
+      then you will not receive credit for being able
+      to <code>find()</code>,
+      even if you claim to be able to do it.
+      </span>
+
+    </p><p>
+      Performance will only be a factor for this assignment
+      if you are unusually slow.
+
+    </p><p>
+      You must e-mail a compressed (gzip) tar file named
+      <code>cs540p2_<var>lastname</var>_<var>firstname</var>.tar.gz</code> containing
+      the files to the class <a href="mailto:cs540-internal@cs.binghamton.edu">internal mailing list</a>
+      with subject set to <code>cs540p2</code>.
+      The tar file should expand to the single directory
+      <code>cs540p2_<var>lastname</var>_<var>firstname</var></code> with the files in it.
+      Of course,
+      in all cases <var>lastname</var> and <var>firstname</var> should 
+      be replaced with your actual last name and first name.
+      So, in my case, I would submit a tar file named
+      <code>cs540p2_chiu_kenneth.tar.gz</code> that expands
+      to the directory <code>cs540p2_chiu_kenneth</code> with my files in it.
+      The archive must not contain any executable or <code>.o</code> files.
+      These will likely cause your submission to be rejected automatically by
+      the e-mail server.
+
+<!-- =============================================================================== -->
+
+    <!--
+    <h2>Submission</h2>
+
+    <p>
+      You must submit a compressed (gzip) tar file named
+      <code>cs540p2_<var>lastname</var>_<var>firstname</var>.tar.gz</code> containing
+      the files through BlackBoard.
+
+      The tar file should expand to the single directory
+      <code>cs540p2_<var>lastname</var>_<var>firstname</var></code> with the files in it.
+
+      Of course,
+      in all cases <var>lastname</var> and <var>firstname</var> should 
+      be replaced with your actual last name and first name.
+
+      So, in my case, I would submit a tar file named
+      <code>cs550p1_chiu_kenneth.tar.gz</code> that expands
+      to the directory <code>cs550p1_chiu_kenneth</code> with my files in it.
+
+      The files you should submit include <code>Map.hpp</code> and a <code>README</code>.
+      If your code can directly be compiled with the provided test code,
+      and passes all tests,
+      then you don't need to submit anything else.
+      Otherwise,
+      you must submit your own test code,
+      makefile, and anything else needed to compile and run your test code.
+      In your <code>README</code>
+      you must explain what you can and cannot do.
+      You will only get credit for functionality that is tested in your test code.
+      This tar file must <b>not</b> contain any
+      <code>.o</code> files, executables, or core files.
+
+    <!~~
+    <p>
+      Your tar file must include four subdirectories,
+      named
+      &thinsp;<code>part1</code>,&thinsp;
+      <code>part2</code>,&thinsp;
+      <code>part3</code>,&thinsp;
+      and &thinsp;<code>part4</code>,&thinsp;
+      containing the four parts, respectively.
+      Each subdirectory must contain your source,
+      a makefile named <code>Makefile</code>,
+      and a <code>README</code>
+      file which minimally contains
+      at least your name and BU number,
+      and optionally any
+      comments you feel are relevant to that part like what works,
+      what does not work,
+      what you feel is interesting,
+      logs of test cases, etc.
+      Your README file will be crucial for
+      assigning partial credit.
+
+    <p>
+      For each part,
+      include test code.
+      If your submission fails our checks,
+      then we will use your test code.
+      If it is not tested in your test code,
+      we will assume that you do not support
+      that functionality.
+      Your makefile for each part must
+      build your test code.
+
+    <p>
+      For Part 4,
+      you must also submit some test program that
+      demonstrates that your CachingNew
+      improves performance.
+
+    <p>
+      Test programs and makefiles may be freely shared and copied.
+      In fact, I encourage it.
+
+    <p>
+      Your code must run on the Linux &rdquo;remote&ldquo; machines,
+      accessible via remote.cs.binghamton.edu.
+
+    <p>
+      Your grade will be based on correctness and performance.
+      Correctness will include whether or not your output is correct,
+      and whether or not you can scale, or have any memory
+      (or other resource) leaks.
+      As always,
+      check your program with valgrind.
+      Correctness will also depend on whether or not you
+      have followed instructions,
+      such as the submission procedure, etc.
+      Performance will only be a factor for this assignment
+      if you are unusually slow.
+    ~~>
+
+    <!~~
+    <h3>Part 1</h3>
+
+    <p>
+      Part 1 must be placed in a subdirectory
+      of your tar file named <code>part1</code>.
+      It must include <code>Map.hpp</code>,
+      <code>Map.cpp</code> (if you have one),
+      the <code>README</code> file,
+      your test code,
+      and a makefile named <code>Makefile</code>
+      that will build your test code.
+
+    <h3>Part 2</h3>
+
+    <p>
+      Part 2 must be placed in a subdirectory
+      of your tar file named <code>part2</code>.
+      It must include <code>Array3.hpp</code>,
+      <code>Array3.cpp</code> (if you have one),
+      the <code>README</code> file,
+      your test code,
+      and a makefile named <code>Makefile</code>
+      that will build your test code.
+
+    <h3>Part 3</h3>
+
+    <p>
+      Part 3 must be placed in a subdirectory
+      of your tar file named <code>part3</code>.
+      It must include <code>Sptr.hpp</code>,
+      <code>Sptr.cpp</code> (if you have one),
+      the <code>README</code> file,
+      your test code,
+      and a makefile named <code>Makefile</code>
+      that will build your test code.
+
+    <h3>Part 4</h3>
+
+    <p>
+      Part 4 must be placed in a subdirectory
+      of your tar file named <code>part4</code>.
+      It must include <code>StaticArray.hpp</code>,
+      <code>StaticArray.cpp</code> (if you have one),
+      the <code>README</code> file,
+      your test code,
+      and a makefile named <code>Makefile</code>
+      that will build your test code.
+    ~~>
+    ~~>
+
+    -->
+
+  
+
+
+
+</p></body></html>
+<!-- vim: set tw=0 sts=2 sw=2 expandtab ai: -->

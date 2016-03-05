@@ -1,0 +1,12 @@
+CC = g++ 
+CFLAGS = -g -Wall -std=c++0x
+
+TARGET = Driver
+
+all: $(TARGET)
+
+$(TARGET): $(TARGET).cpp
+	$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).cpp
+
+clean:
+	$(RM) $(TARGET) *.o

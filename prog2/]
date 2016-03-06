@@ -51,7 +51,9 @@ public:
 		Iterator& operator++(){ node_p = node_p->next; return *this; }
 		Iterator operator++(int) { Iterator it = *this; ++*this; return it; }
 		std::pair<const Key_T, Mapped_T> operator*() const { 
-			return node_p == nullptr ? std::pair<const Key_T, Mapped_T>(NULL,NULL) : std::pair<const Key_T, Mapped_T>(node_p->key, node_p->value); }
+			return node_p == nullptr ? 
+				std::pair<const Key_T, Mapped_T>(NULL,NULL) : 
+				std::pair<const Key_T, Mapped_T>(node_p->key, node->value); }
 		Iterator begin() const { return Iterator(this->head[tier]); }
 		Iterator end() const { return NULL; }
 		
@@ -69,7 +71,7 @@ public:
 	};
 	};
 	
-	Map() {}
+	Map() : map() {}
 	Map(const Map&) {
 		//this.valueType = Map.valueType;
 	}
@@ -83,7 +85,7 @@ public:
 	bool empty() const {
 		return current_size == 0;
 	}
-	/*typename SkipList::Iterator begin() {
+	typename SkipList::Iterator begin() {
 		return Iterator(map.begin());
 	}
 	typename SkipList::Iterator end() {
@@ -106,13 +108,13 @@ public:
 	}
 	typename SkipList::ConstIterator find(const Key_T &x) const {
 		map.find(x);
-	}*/
+	}
 	Mapped_T &at(const Key_T &x);
 	const Mapped_T &at(const Key_T &x) const;
 	Mapped_T &operator[](const Key_T &x);
-	std::pair<typename SkipList::Iterator, bool> insert(const std::pair<const Key_T, Mapped_T>&);
+	std::pair<Iterator, bool> insert(const std::pair<const Key_T, Mapped_T>&);
 	template <typename IT_T> void insert(IT_T range_beg, IT_T range_end);
-	void erase(typename SkipList::Iterator pos);
+	void erase(Iterator pos);
 	void erase(const Key_T &);
 	void clear();
 	bool operator==(const Map&);

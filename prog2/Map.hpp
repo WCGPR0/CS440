@@ -47,7 +47,7 @@ public:
 		//Forward Delcarations	
 public:
 		struct Node {
-			Key_T key[MAX_LEVEL] = {0}; //Tiers for probability hits	
+			Key_T key[MAX_LEVEL] = {0}; //Tiers for probability hits	i
 			Mapped_T value;
 			Node *next, *prev;
 			Node(Key_T key, Mapped_T value, Node* next = nullptr) : key{key}, value(value), next(next) { if (next != nullptr) next->prev = this; }
@@ -61,14 +61,27 @@ public:
 			head = new Node(minKey, minValue, &*tail);	
 		}
 		void insert(Key_T key, Mapped_T newValue) {
-			// CONSIDER THE CASE: KEY > END VALUE. !!! IMPORTANT (infinite loop)	
+			// CONSIDER THE CASE: KEY > END VALUE. !!! IMPORTANT (infinite loop)
+			// CONSIDER THE CASE: KEY == NODE
+			if (head.index 
 			Iterator it{*head};
 			Node* insertNodePointer;	
 			for (int tier = MAX_LEVEL; tier >= 1; --tier) {	
-				while (it.node_p->key[tier] && it.node_p->key[tier] < key) ++it;
-				insertNodePointer = it.node_p;
+				while (it.node_p->key[tier])
+					if (it.node_p->key[tier] > key) {
+						insertNodePointer = it.node_p; 
+						break;
+					}
+					++it;	
 			}	
-			insertNodePointer->prev->next = new Node(key, newValue, insertNodePointer); //Sets previous node to point to newly constructed node, and update properties of next node	
+			insertNodePointer->prev->next = new Node(key, newValue, insertNodePointer); //Sets previous node to point to newly constructed node, and update properties of next node
+			for (int i = 1; rand() % 2; ++i)
+				insertNodePointer->prev->next->key[i] = key;
+		}
+		void erase(Node& node) {
+			node->prev->next = node->next;
+			node->next = node->prev;
+			~node();
 		}
 };	 
 	
@@ -119,10 +132,17 @@ public:
 	//std::pair<typename SkipList::Iterator, bool> insert(const std::pair<const Key_T, Mapped_T>& pair) {SkipList::insert(pair.first, pair.second); };
 	void insert(const std::pair<const Key_T, Mapped_T>& pair) {map->insert(pair.first, pair.second); }; //TESTING
 	//template <typename IT_T> void insert(IT_T range_beg, IT_T range_end);
-	void erase(Iterator pos);
-	void erase(const Key_T &);
+	void erase(Iterator pos) {}
+	void erase(const Key_T &) {}
 	void clear();
-	bool operator==(const Map&);
+	bool operator==(const Map& map) {
+		Iterator it(map.head), it2(this.head);
+		while (it != nullptr) {
+			if (it->first != it2->second) return false;
+			++it;
+		}
+	return true;
+	}
 	bool operator!=(const Map& map) { return !(this == map); }
 	bool operator<(const Map&);
 };

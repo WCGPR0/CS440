@@ -12,22 +12,25 @@ class Map {
 private:
 	size_t current_size = 0;	
 public:	
+	typedef std::pair<const Key_T, Mapped_T> ValueType;
+
 	class SkipList;
 	//Iterators
 	struct Iterator {
 		friend class SkipList;	
 	
-		const typename SkipList::Node* node_p;	
-		Iterator (const typename SkipList::Node& node) : node_p(&node) {}
+		typename SkipList::Node* node_p;	
+		Iterator (typename SkipList::Node& node) : node_p(&node) {}
+		Iterator (const Iterator &) {}
 		~Iterator() {}	
 		Iterator& operator++(){ node_p = node_p->next; return *this; }
 		Iterator operator++(int) { Iterator it = *this; ++*this; return it; }
 		Iterator& operator--() { node_p = node_p->prev; return *this; }
 		Iterator operator--(int) { Iterator it = *this; --*this; return it; }
-		/*std::pair<const Key_T, Mapped_T> operator*() const { 
-			return node_p == nullptr ? std::pair<const Key_T, Mapped_T>(NULL,NULL) : std::pair<const Key_T, Mapped_T>(node_p->key, node_p->value); } */	
-		typename SkipList::Node* operator*() const { return node_p; }
-		// *operator->() const;
+		ValueType &operator*() const { 
+			return node_p == nullptr ? std::pair<const Key_T, Mapped_T>(NULL,NULL) : std::pair<const Key_T, Mapped_T>(node_p->key, node_p->value); } 		
+		ValueType *operator->() const {
+			return node_p == nullptr ? std::pair<const Key_T, Mapped_T>(NULL,NULL) : std::pair<const Key_T, Mapped_T>(node_p->key, node_p->value); } 		
 	};
 	struct ConstIterator : public Iterator {	
 		const std::pair<const Key_T, Mapped_T> &operator*() const;
@@ -42,8 +45,6 @@ public:
 	};	
 	class SkipList {
 		//Forward Delcarations	
-		struct ConstIterator;
-		struct ReverseIterator;
 public:
 		struct Node {
 			Key_T key[MAX_LEVEL] = {0}; //Tiers for probability hits	
@@ -60,16 +61,17 @@ public:
 			head = new Node(minKey, minValue, &*tail);	
 		}
 		void insert(Key_T key, Mapped_T newValue) {
-			// CONSIDER THE CASE: KEY > END VALUE. !!! IMPORTANT (infinite loop)
-			Node* insertNodePointer;
+			// CONSIDER THE CASE: KEY > END VALUE. !!! IMPORTANT (infinite loop)	
 			Iterator it{*head};
-			/*for (int tier = it.tier; tier >= 1; --tier) {	
-				while (it.get() && it.get() < key) ++it;
-				insertNodePointer = *it;	
-			}	*/
+			Node* insertNodePointer;	
+			for (int tier = MAX_LEVEL; tier >= 1; --tier) {	
+				while (it.node_p->key[tier] && it.node_p->key[tier] < key) ++it;
+				insertNodePointer = it.node_p;
+			}	
 			insertNodePointer->prev->next = new Node(key, newValue, insertNodePointer); //Sets previous node to point to newly constructed node, and update properties of next node	
 		}
 };	 
+	
 	SkipList* map;
 
 	Map() {}

@@ -23,7 +23,7 @@ public:
 		Iterator (typename SkipList::Node& node) : node_p(&node) {}
 		Iterator (const Iterator &) {}
 		~Iterator() {}	
-		Iterator& operator++(){ node_p = node_p->next; return *this; }
+		Iterator& operator++(){ node_p = node_p->next[0]; return *this; }
 		Iterator operator++(int) { Iterator it = *this; ++*this; return it; }
 		Iterator& operator--() { node_p = node_p->prev; return *this; }
 		Iterator operator--(int) { Iterator it = *this; --*this; return it; }
@@ -49,34 +49,42 @@ public:
 		struct Node {
 			Key_T key[MAX_LEVEL] = {0}; //Tiers for probability hits	i
 			Mapped_T value;
-			Node *next, *prev;
-			Node(Key_T key, Mapped_T value, Node* next = nullptr) : key{key}, value(value), next(next) { if (next != nullptr) next->prev = this; }
+			Node *next[MAX_LEVEL], *prev[MAX_LEVEL];
+			Node(Key_T key, Mapped_T value, Node* next = nullptr) : key{key}, value(value), next{next} { if (this->next != nullptr) this->next[0]->prev[0] = this; }
 		};
 protected:
 		Node *head, *tail;
 		Key_T min, max;
 public:
 		SkipList(Key_T minKey, Key_T maxKey, Mapped_T minValue, Mapped_T maxValue): min(min), max(max){
-			tail = new Node(maxKey, maxValue);
-			head = new Node(minKey, minValue, &*tail);	
+			//tail = new Node(maxKey, maxValue);
+			//head = new Node(minKey, minValue, &*tail);	
 		}
-		void insert(Key_T key, Mapped_T newValue) {
+		Node* insert(const Key_T key, Mapped_T newValue) {
 			// CONSIDER THE CASE: KEY > END VALUE. !!! IMPORTANT (infinite loop)
 			// CONSIDER THE CASE: KEY == NODE
-			if (head.index 
-			Iterator it{*head};
-			Node* insertNodePointer;	
-			for (int tier = MAX_LEVEL; tier >= 1; --tier) {	
-				while (it.node_p->key[tier])
-					if (it.node_p->key[tier] > key) {
-						insertNodePointer = it.node_p; 
+	
+			Node *currentNodePointer, *insertNodePointer;		
+			//Empty graph
+			if (head == nullptr) {
+				insertNodePointer = new Node(key, newValue);	
+			}
+			else {
+			currentNodePointer = head;
+			for (int tier = MAX_LEVEL; tier >= 1; --tier) {
+				currentNodePointer = currentNodePointer->next[tier];
+				while (currentNodePointer->next[tier])
+					if (currentNodePointer->key[tier] > key) {
+						insertNodePointer = currentNodePointer; 
 						break;
-					}
-					++it;	
+					}	
 			}	
-			insertNodePointer->prev->next = new Node(key, newValue, insertNodePointer); //Sets previous node to point to newly constructed node, and update properties of next node
+			insertNodePointer->prev[0]->next[0] = new Node(key, newValue, insertNodePointer); //Sets previous node to point to newly constructed node, and update properties of next node
+			insertNodePointer = insertNodePointer->prev[0]->next[0];
+		}
 			for (int i = 1; rand() % 2; ++i)
-				insertNodePointer->prev->next->key[i] = key;
+				insertNodePointer->key[i] = key;
+			return insertNodePointer;
 		}
 		void erase(Node& node) {
 			node->prev->next = node->next;
@@ -130,7 +138,13 @@ public:
 	const Mapped_T &at(const Key_T &x) const;
 	Mapped_T &operator[](const Key_T &x);
 	//std::pair<typename SkipList::Iterator, bool> insert(const std::pair<const Key_T, Mapped_T>& pair) {SkipList::insert(pair.first, pair.second); };
-	void insert(const std::pair<const Key_T, Mapped_T>& pair) {map->insert(pair.first, pair.second); }; //TESTING
+	std::pair<Iterator, bool> insert(const ValueType &pair) {
+		Key_T key = pair.first;
+		Mapped_T value = pair.second;
+		Iterator it(*(map->insert(key,value)));
+		bool flag = true;	
+		return std::pair<Iterator, bool>(it, flag);
+	}; 
 	//template <typename IT_T> void insert(IT_T range_beg, IT_T range_end);
 	void erase(Iterator pos) {}
 	void erase(const Key_T &) {}

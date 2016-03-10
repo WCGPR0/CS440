@@ -1,3 +1,8 @@
+/** Victor Wu
+    CS440 - Advanced Object Oriented Programming
+    March 9, 2016
+*/
+
 #ifndef CustomMap
 #include <iostream>
 #include <utility>

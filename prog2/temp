@@ -1,1 +1,1 @@
-make: Nothing to be done for `all'.
+g++  -g -Wall -std=c++0x -o Driver Driver.cpp

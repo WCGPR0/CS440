@@ -21,7 +21,7 @@ public:
 	
 		typename SkipList::Node* node_p;	
 		Iterator (typename SkipList::Node& node) : node_p(&node) {}
-		Iterator (const Iterator &) {}
+		//Iterator (const Iterator &) {}
 		~Iterator() {}	
 		Iterator& operator++(){ node_p = node_p->next[0]; return *this; }
 		Iterator operator++(int) { Iterator it = *this; ++*this; return it; }
@@ -31,6 +31,10 @@ public:
 			return node_p == nullptr ? std::pair<const Key_T, Mapped_T>(NULL,NULL) : std::pair<const Key_T, Mapped_T>(node_p->key, node_p->value); } 		
 		ValueType *operator->() const {
 			return node_p == nullptr ? std::pair<const Key_T, Mapped_T>(NULL,NULL) : std::pair<const Key_T, Mapped_T>(node_p->key, node_p->value); } 		
+	
+	friend bool operator==(const Iterator &it1, const Iterator &it2) {return it1.node_p == it2.node_p;}
+
+	friend bool operator!=(const Iterator &it1, const Iterator &it2) {return !(it1 == it2);}
 	};
 	struct ConstIterator : public Iterator {	
 		const std::pair<const Key_T, Mapped_T> &operator*() const;
@@ -42,7 +46,8 @@ public:
 		ReverseIterator operator++(int) {}
 		ReverseIterator& operator--() {}
 		ReverseIterator operator--(int) {}
-	};	
+	};
+
 	class SkipList {
 		//Forward Delcarations	
 public:
@@ -50,15 +55,17 @@ public:
 			Key_T key[MAX_LEVEL] = {0}; //Tiers for probability hits	i
 			Mapped_T value;
 			Node *next[MAX_LEVEL], *prev[MAX_LEVEL];
-			Node(Key_T key, Mapped_T value, Node* next = nullptr) : key{key}, value(value), next{next} { if (this->next != nullptr) this->next[0]->prev[0] = this; }
+			Node(Key_T key, Mapped_T value, Node* next = nullptr) : key{key}, value(value), next{next} { if (this->next[0] != nullptr) this->next[0]->prev[0] = this; }
 		};
-protected:
-		Node *head, *tail;
-		Key_T min, max;
+
 public:
+		Node *head = nullptr, *tail = nullptr;
+		Key_T min, max;
+
+		SkipList() {}
 		SkipList(Key_T minKey, Key_T maxKey, Mapped_T minValue, Mapped_T maxValue): min(min), max(max){
 			//tail = new Node(maxKey, maxValue);
-			//head = new Node(minKey, minValue, &*tail);	
+			//head = new Node(minKey, minValue, &*tail);
 		}
 		Node* insert(const Key_T key, Mapped_T newValue) {
 			// CONSIDER THE CASE: KEY > END VALUE. !!! IMPORTANT (infinite loop)
@@ -67,9 +74,10 @@ public:
 			Node *currentNodePointer, *insertNodePointer;		
 			//Empty graph
 			if (head == nullptr) {
-				insertNodePointer = new Node(key, newValue);
+				head = new Node(key, newValue, &*tail);
+				insertNodePointer = head;
 				for (int tier = 0; tier < MAX_LEVEL; ++tier)
-					insertNodePointer->key[tier] = key; 	
+					insertNodePointer->key[tier] = key;	
 			}
 			else {
 			currentNodePointer = head;
@@ -83,9 +91,9 @@ public:
 			}	
 			insertNodePointer->prev[0]->next[0] = new Node(key, newValue, insertNodePointer); //Sets previous node to point to newly constructed node, and update properties of next node
 			insertNodePointer = insertNodePointer->prev[0]->next[0];
-		}
 			for (int i = 1; rand() % 2; ++i)
 				insertNodePointer->key[i] = key;
+		}
 			return insertNodePointer;
 		}
 		void erase(Node& node) {
@@ -97,7 +105,9 @@ public:
 	
 	SkipList* map;
 
-	Map() {}
+	Map() {
+		map = new SkipList();
+	}
 	Map(std::initializer_list<ValueType> pair) : Map() {
 		for (auto i = pair.begin(); i != pair.end(); ++pair)
 			insert(i->first, i->second);
@@ -106,9 +116,13 @@ public:
 		//this.valueType = Map.valueType;
 	}
 	Map &operator=(const Map&) {
+		//Clear
 		//return this.valueType == Map.valueType;
 	}
-	~Map() {}
+	~Map() {
+		clear();
+		delete map;
+	}
 	size_t size() const {
 		return current_size;
 	}
@@ -116,10 +130,10 @@ public:
 		return current_size == 0;
 	}
 	Iterator begin() {
-		return Iterator(*(this->head));
+		return Iterator(*(map->head));
 	}	
 	Iterator end() {
-		return NULL; //Iterator(map.end());
+		return Iterator(*(map->tail)); 
 	}
 /*
 	typename SkipList::ConstIterator begin() const {
@@ -154,10 +168,19 @@ public:
 	//template <typename IT_T> void insert(IT_T range_beg, IT_T range_end);
 	void erase(Iterator pos) {}
 	void erase(const Key_T &) {}
-	void clear();
+	void clear() {
+		Iterator it = this->begin();
+		while (it != this->end()) {
+			Iterator it2 = it;
+			delete it.node_p;
+			it = it2;
+			++it;
+			//delete it.node_p++;
+		}
+	}
 	bool operator==(const Map& map) {
 		Iterator it(map.head), it2(this.head);
-		while (it != nullptr) {
+		while (it != map.end()) {
 			if (it->first != it2->second) return false;
 			++it;
 		}

@@ -67,7 +67,9 @@ public:
 			Node *currentNodePointer, *insertNodePointer;		
 			//Empty graph
 			if (head == nullptr) {
-				insertNodePointer = new Node(key, newValue);	
+				insertNodePointer = new Node(key, newValue);
+				for (int tier = 0; tier < MAX_LEVEL; ++tier)
+					insertNodePointer->key[tier] = key; 	
 			}
 			else {
 			currentNodePointer = head;
@@ -96,6 +98,10 @@ public:
 	SkipList* map;
 
 	Map() {}
+	Map(std::initializer_list<ValueType> pair) : Map() {
+		for (auto i = pair.begin(); i != pair.end(); ++pair)
+			insert(i->first, i->second);
+	}
 	Map(const Map&) {
 		//this.valueType = Map.valueType;
 	}

@@ -1,1 +1,14 @@
-g++  -g -Wall -std=c++0x -o Driver Driver.cpp
+In file included from Driver.cpp:1:
+./Map.hpp:80:83: warning: field is uninitialized when used here [-Wuninitialized]
+                SkipList(Key_T minKey, Key_T maxKey, Mapped_T minValue, Mapped_T maxValue): min(min), max(max){
+                                                                                                ^
+./Map.hpp:80:93: warning: field is uninitialized when used here [-Wuninitialized]
+                SkipList(Key_T minKey, Key_T maxKey, Mapped_T minValue, Mapped_T maxValue): min(min), max(max){
+                                                                                                          ^
+Driver.cpp:6:14: error: reference to type 'const ValueType' (aka 'const pair<const int, int>') cannot bind to an initializer list
+    m.insert({10, 10});
+             ^~~~~~~~
+./Map.hpp:189:52: note: passing argument to parameter 'pair' here
+        std::pair<Iterator, bool> insert(const ValueType &pair) {
+                                                          ^
+2 warnings and 1 error generated.

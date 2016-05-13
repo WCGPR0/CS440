@@ -17,4 +17,4 @@ $(TARGET2): $(TARGET2).cpp
 	$(CC) $(CFLAGS) -o $(TARGET2) $(TARGET2).cpp
 
 clean:
-	$(RM) $(TARGET) *.o
+	$(RM) $(TARGET) $(TARGET2) *.o

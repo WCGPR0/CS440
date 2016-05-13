@@ -9,6 +9,8 @@
 #include <cstdlib>
 
 #define MAX_LEVEL 16
+
+#define DEBUG std::cerr
 #endif
 
 namespace cs540 {
@@ -106,24 +108,33 @@ public:
 				head = new Node(key, newValue, &*tail);
 				insertNodePointer = head;
 				for (int tier = 0; tier < MAX_LEVEL-1; ++tier)
-					insertNodePointer->key[tier] = key;	
+					insertNodePointer->key[tier] = key;
+				return insertNodePointer;	
 			}
 			else {
 			currentNodePointer = head;
-			for (int tier = MAX_LEVEL-1; tier >= 1; --tier) {
-				currentNodePointer = currentNodePointer->next[tier];
+			// Swaps base with smaller element (head)
+			if (currentNodePointer->base.first > key) {
+				head = new Node(key, newValue, head);
+				insertNodePointer = head; 
+				goto INSERTFOUND;
+			}
+			for (int tier = MAX_LEVEL-1; tier >= 1; --tier) {	
 				while (currentNodePointer->next[tier])
+					currentNodePointer = currentNodePointer->next[tier];
 					if (currentNodePointer->key[tier] > key) {
-						insertNodePointer = currentNodePointer; 
+						insertNodePointer = new Node(key, newValue, currentNodePointer); 
 						goto INSERTFOUND;	
 					}	
 			}
-			while (currentNodePointer->next[0])
-				if (currentNodePointer->base.first > key)
-					insertNodePointer = currentNodePointer;
-INSERTFOUND:	
-			insertNodePointer->prev[0]->next[0] = new Node(key, newValue, insertNodePointer); //Sets previous node to point to newly constructed node, and update properties of next node
-			insertNodePointer = insertNodePointer->prev[0]->next[0];
+			// Swaps base with larger element (tail)	
+			if (currentNodePointer->base.first < key) {
+					tail = new Node(key, newValue);
+					tail->prev[0] = currentNodePointer;
+					tail->prev[0]->next[0] = tail;
+					insertNodePointer = tail;
+					}
+INSERTFOUND:			
 			for (int i = 1; rand() % 2; ++i)
 				insertNodePointer->key[i] = key;
 		}
@@ -222,7 +233,8 @@ INSERTFOUND:
 		Key_T key = pair.first;
 		Mapped_T value = pair.second;
 		Iterator it(*(map->insert(key,value)));
-		bool flag = true;	
+		bool flag = true;
+//DEBUG << "inserted:" << key << value;
 		return std::pair<Iterator, bool>(it, flag);
 	}; 
 	//template <typename IT_T> void insert(IT_T range_beg, IT_T range_end);
@@ -230,11 +242,8 @@ INSERTFOUND:
 	void erase(const Key_T &) {}
 	void clear() {
 		Iterator it = this->begin();
-		while (it != this->end()) {
-			Iterator it2 = it;
-			delete it.node_p;
-			it = it2;
-			++it;
+		while (it != this->end()) {	
+			delete it++.node_p;		
 			//delete it.node_p++;
 		}
 	}
